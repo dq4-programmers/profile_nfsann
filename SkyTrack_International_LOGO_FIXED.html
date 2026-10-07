@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkyTrack International</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2d;--panel2:#10243a;--line:#20364f;--text:#eaf3ff;--muted:#91a7c0;--accent:#35b8ff;--green:#32d583;--yellow:#f6c344;--red:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 80% -10%,#123a5c 0,#07111f 45%);color:var(--text)}
+header{padding:22px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#081524ee;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px)}
+.brand{display:flex;gap:13px;align-items:center}.logo{font-size:30px}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.live{border:1px solid #1c7650;color:#70e8aa;background:#0b3024;padding:8px 12px;border-radius:20px;font-size:12px}
+main{max-width:1500px;margin:auto;padding:22px}
+.hero{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}.hero h2{margin:0;font-size:30px}.hero p{color:var(--muted);margin:7px 0 0}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn,.select,.search{background:var(--panel);color:var(--text);border:1px solid var(--line);padding:10px 13px;border-radius:9px}.btn{cursor:pointer}.btn:hover{border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}.stat{background:linear-gradient(145deg,#0d1c2e,#0b1726);border:1px solid var(--line);padding:17px;border-radius:12px}.stat b{display:block;font-size:25px}.stat span{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:1.8fr 1fr;gap:16px}.card{background:#0b1929eF;border:1px solid var(--line);border-radius:13px;overflow:hidden}.card h3{font-size:15px;margin:0;padding:15px 16px;border-bottom:1px solid var(--line)}
+.filters{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}.search{min-width:210px;flex:1}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:12px 13px;text-align:left;border-bottom:1px solid #172b40}th{color:#91a7c0;font-size:11px;text-transform:uppercase}tr:hover{background:#10243a}.flight{font-weight:700;color:#fff}.route{font-weight:600}.sub{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.badge{display:inline-block;padding:5px 8px;border-radius:20px;font-size:10px;font-weight:700}.on{background:#103b2a;color:#70e8aa}.board{background:#3b3211;color:#ffe08a}.delay{background:#3d2020;color:#ff9a9a}.depart{background:#123653;color:#76caff}
+.list{max-height:600px;overflow:auto}.item{padding:13px 15px;border-bottom:1px solid #172b40;cursor:pointer}.item:hover{background:#10243a}.item strong{display:block}.item small{color:var(--muted)}.code{font-family:monospace;color:#62c8ff}
+#map{height:440px;background:#06101c;position:relative;overflow:hidden}.world{position:absolute;inset:0;background-image:linear-gradient(#14304a 1px,transparent 1px),linear-gradient(90deg,#14304a 1px,transparent 1px);background-size:48px 48px;opacity:.35}.mapnote{position:absolute;left:14px;top:12px;background:#091827dd;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:11px;color:var(--muted)}
+.plane{position:absolute;font-size:18px;filter:drop-shadow(0 0 6px #35b8ff);cursor:pointer;transition:left 1s linear,top 1s linear}.airport{position:absolute;width:9px;height:9px;background:#35b8ff;border:2px solid #dff6ff;border-radius:50%;box-shadow:0 0 12px #35b8ff;cursor:pointer}.tip{position:absolute;display:none;background:#081524f5;border:1px solid var(--line);padding:9px;border-radius:8px;font-size:11px;z-index:3;pointer-events:none}
+.footer{color:#70869d;font-size:11px;margin-top:18px;text-align:center}
+@media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.hero{align-items:start;flex-direction:column}}
+@media(max-width:600px){main{padding:12px}.stats{grid-template-columns:1fr 1fr}.hero h2{font-size:24px}table{min-width:850px}.card{overflow:auto}}
+
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:50;padding:18px}.modal.show{display:flex}.modalbox{width:min(760px,96vw);background:#0b1929;border:1px solid #2a4865;border-radius:16px;box-shadow:0 20px 70px #000b;overflow:hidden}.modalhead{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #20364f}.close{border:0;background:#17304a;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer}.modalbody{display:grid;grid-template-columns:1.1fr 1fr;gap:0}.airphoto{min-height:300px;background:#07111f;display:flex;align-items:center;justify-content:center;overflow:hidden}.airphoto img{width:100%;height:300px;object-fit:cover}.details{padding:22px}.details h2{margin:0 0 6px}.details p{color:#91a7c0}.detailgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.detailbox{background:#10243a;border:1px solid #20364f;padding:11px;border-radius:9px}.detailbox small{display:block;color:#91a7c0;font-size:10px;margin-bottom:4px}.detailbox b{font-size:13px}.clickhint{font-size:10px;color:#35b8ff;margin-top:7px}@media(max-width:650px){.modalbody{grid-template-columns:1fr}.airphoto img{height:220px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">✈️</div><div><h1>SKYTRACK INTERNATIONAL</h1><p>International Flight Operations Dashboard</p></div></div><div class="live">● SYSTEM ONLINE</div></header>
+<main>
+<section class="hero"><div><h2>Flight Operations Center</h2><p>Jadwal penerbangan, maskapai, bandara, pesawat, dan pemantauan posisi.</p></div><div class="actions"><button class="btn" onclick="resetFilters()">Reset</button><button class="btn" onclick="downloadCSV()">Export CSV</button></div></section>
+<section class="stats">
+<div class="stat"><b id="flightCount">20</b><span>Penerbangan</span></div><div class="stat"><b id="airlineCount">20</b><span>Maskapai</span></div><div class="stat"><b id="airportCount">20</b><span>Bandara</span></div><div class="stat"><b id="planeCount">20</b><span>Pesawat</span></div><div class="stat"><b>LIVE</b><span>Tracking status</span></div>
+</section>
+<div class="grid">
+<div class="card"><h3>✈️ Jadwal Penerbangan Internasional</h3><div class="filters"><input id="q" class="search" placeholder="Cari flight, kota, maskapai, bandara..." oninput="renderFlights()"><select id="airline" class="select" onchange="renderFlights()"><option value="">Semua maskapai</option></select><select id="status" class="select" onchange="renderFlights()"><option value="">Semua status</option><option>On Time</option><option>Boarding</option><option>Delayed</option><option>Departed</option></select></div><div style="overflow:auto"><table><thead><tr><th>Flight</th><th>Maskapai</th><th>Rute</th><th>Pesawat</th><th>Gate</th><th>Waktu</th><th>Status</th></tr></thead><tbody id="flights"></tbody></table></div></div>
+<div class="card"><h3>🌐 Live Aircraft Map</h3><div id="map"><div class="world"></div><div class="mapnote">DATA DEMO + simulasi posisi bergerak</div></div></div>
+<div class="card"><h3>🏢 Maskapai Internasional</h3><div class="list" id="airlines"></div></div>
+<div class="card"><h3>🛫 Bandara Internasional</h3><div class="list" id="airports"></div></div>
+</div>
+<div class="footer">SkyTrack demo database. Data jadwal di halaman ini adalah data contoh untuk demonstrasi UI; posisi live membutuhkan API ADS-B/flight-tracking.</div>
+</main>
+
+<div class="modal" id="planeModal" onclick="if(event.target===this)closePlane()">
+ <div class="modalbox">
+  <div class="modalhead"><strong id="modalTitle">Aircraft Detail</strong><button class="close" onclick="closePlane()">✕</button></div>
+  <div class="modalbody">
+   <div class="airphoto"><img id="modalImg" alt="Gambar pesawat/maskapai" referrerpolicy="no-referrer"></div>
+   <div class="details">
+    <h2 id="modalFlight"></h2><p id="modalAirline"></p>
+    <div class="detailgrid">
+     <div class="detailbox"><small>Pesawat</small><b id="modalAircraft"></b></div>
+     <div class="detailbox"><small>Rute</small><b id="modalRoute"></b></div>
+     <div class="detailbox"><small>ICAO / Callsign</small><b id="modalIcao"></b></div>
+     <div class="detailbox"><small>Status</small><b id="modalStatus"></b></div>
+    </div>
+    <div class="clickhint">Klik pesawat lain di peta untuk melihat detailnya.</div>
+   </div>
+  </div>
+ </div>
+</div>
+<script>
+const airlines=[
+["Garuda Indonesia","GA","GIA","Indonesia"],["Singapore Airlines","SQ","SIA","Singapore"],["Malaysia Airlines","MH","MAS","Malaysia"],["Thai Airways","TG","THA","Thailand"],["Emirates","EK","UAE","UAE"],["Qatar Airways","QR","QTR","Qatar"],["Etihad Airways","EY","ETD","UAE"],["Turkish Airlines","TK","THY","Türkiye"],["Lufthansa","LH","DLH","Germany"],["British Airways","BA","BAW","United Kingdom"],["Air France","AF","AFR","France"],["KLM","KL","KLM","Netherlands"],["Japan Airlines","JL","JAL","Japan"],["All Nippon Airways","NH","ANA","Japan"],["Korean Air","KE","KAL","South Korea"],["Cathay Pacific","CX","CPA","Hong Kong"],["Qantas","QF","QFA","Australia"],["United Airlines","UA","UAL","United States"],["Delta Air Lines","DL","DAL","United States"],["Air Canada","AC","ACA","Canada"]
+];
+const airports=[
+["Soekarno-Hatta International","CGK","WIII","Jakarta","Indonesia",-6.1256,106.6559],["Singapore Changi","SIN","WSSS","Singapore","Singapore",1.3644,103.9915],["Kuala Lumpur International","KUL","WMKK","Kuala Lumpur","Malaysia",2.7456,101.7099],["Suvarnabhumi","BKK","VTBS","Bangkok","Thailand",13.6900,100.7501],["Narita International","NRT","RJAA","Tokyo","Japan",35.7720,140.3929],["Haneda","HND","RJTT","Tokyo","Japan",35.5494,139.7798],["Incheon International","ICN","RKSI","Seoul","South Korea",37.4602,126.4407],["Hong Kong International","HKG","VHHH","Hong Kong","Hong Kong",22.3080,113.9185],["Dubai International","DXB","OMDB","Dubai","UAE",25.2532,55.3657],["Hamad International","DOH","OTHH","Doha","Qatar",25.2731,51.6081],["Heathrow","LHR","EGLL","London","United Kingdom",51.4700,-0.4543],["Charles de Gaulle","CDG","LFPG","Paris","France",49.0097,2.5479],["Amsterdam Schiphol","AMS","EHAM","Amsterdam","Netherlands",52.3105,4.7683],["Frankfurt","FRA","EDDF","Frankfurt","Germany",50.0379,8.5622],["Istanbul Airport","IST","LTFM","Istanbul","Türkiye",41.2753,28.7519],["John F. Kennedy","JFK","KJFK","New York","United States",40.6413,-73.7781],["Los Angeles International","LAX","KLAX","Los Angeles","United States",33.9416,-118.4085],["San Francisco International","SFO","KSFO","San Francisco","United States",37.6213,-122.3790],["Sydney Kingsford Smith","SYD","YSSY","Sydney","Australia",-33.9399,151.1753],["Toronto Pearson","YYZ","CYYZ","Toronto","Canada",43.6777,-79.6248]
+];
+const planes=["Boeing 777-300ER","Airbus A350-900","Boeing 787-9 Dreamliner","Airbus A330-300","Boeing 787-10","Airbus A380-800","Boeing 777-200ER","Airbus A350-1000"];
+const flights=[
+["GA088","Garuda Indonesia","CGK","AMS","Boeing 777-300ER","G12","21:05","On Time"],["SQ952","Singapore Airlines","SIN","CGK","Airbus A350-900","D4","21:20","Boarding"],["EK356","Emirates","DXB","SIN","Airbus A380-800","B21","22:10","On Time"],["QR954","Qatar Airways","DOH","CGK","Boeing 777-300ER","C8","22:25","On Time"],["JL720","Japan Airlines","NRT","CGK","Boeing 787-9 Dreamliner","A7","22:40","Departed"],["NH835","All Nippon Airways","HND","CGK","Boeing 787-9 Dreamliner","E2","23:00","On Time"],["MH720","Malaysia Airlines","KUL","CGK","Airbus A330-300","F6","23:15","Boarding"],["TG433","Thai Airways","BKK","CGK","Airbus A350-900","C5","23:30","On Time"],["TK056","Turkish Airlines","IST","CGK","Boeing 787-9 Dreamliner","D10","23:45","Delayed"],["LH778","Lufthansa","FRA","SIN","Airbus A350-900","Z4","00:05","On Time"],["BA011","British Airways","LHR","SIN","Airbus A380-800","G2","00:20","On Time"],["AF256","Air France","CDG","SIN","Boeing 777-300ER","K8","00:40","Boarding"],["KL835","KLM","AMS","SIN","Boeing 777-200ER","E7","01:00","On Time"],["KE627","Korean Air","ICN","CGK","Boeing 777-300ER","A3","01:20","On Time"],["CX719","Cathay Pacific","HKG","CGK","Airbus A330-300","C2","01:35","Departed"],["QF001","Qantas","SYD","LHR","Airbus A380-800","T1","01:50","On Time"],["UA001","United Airlines","SFO","SIN","Boeing 787-9 Dreamliner","G5","02:10","Delayed"],["DL027","Delta Air Lines","JFK","LHR","Airbus A330-300","B6","02:25","On Time"],["AC033","Air Canada","YYZ","NRT","Boeing 787-9 Dreamliner","C11","02:40","On Time"],["EY474","Etihad Airways","AUH","CGK","Boeing 787-10","D6","03:00","On Time"]
+];
+const airportMap=Object.fromEntries(airports.map(a=>[a[1],a]));
+const airlineMap=Object.fromEntries(airlines.map(a=>[a[0],a]));
+function renderAirlines(){document.getElementById("airlines").innerHTML=airlines.map(a=>`<div class="item"><strong>${a[0]} <span class="code">${a[1]} / ${a[2]}</span></strong><small>${a[3]}</small></div>`).join("");document.getElementById("airline").innerHTML='<option value="">Semua maskapai</option>'+airlines.map(a=>`<option>${a[0]}</option>`).join("")}
+function renderAirports(){document.getElementById("airports").innerHTML=airports.map(a=>`<div class="item" onclick="focusAirport('${a[1]}')"><strong>${a[0]} <span class="code">${a[1]} / ${a[2]}</span></strong><small>${a[3]}, ${a[4]}</small></div>`).join("")}
+function renderFlights(){let q=document.getElementById("q").value.toLowerCase(),al=document.getElementById("airline").value,st=document.getElementById("status").value;let x=flights.filter(f=>{let txt=f.join(" ").toLowerCase();return(!q||txt.includes(q))&&(!al||f[1]===al)&&(!st||f[7]===st)});document.getElementById("flights").innerHTML=x.map(f=>`<tr onclick="showPlane(${flights.indexOf(f)})" style="cursor:pointer"><td class="flight">${f[0]}</td><td>${f[1]}<span class="sub">${airlineMap[f[1]]?.[1]||""}</span></td><td class="route">${f[2]} → ${f[3]}<span class="sub">${airportMap[f[2]]?.[3]} → ${airportMap[f[3]]?.[3]}</span></td><td>${f[4]}</td><td>${f[5]}</td><td>${f[6]}</td><td><span class="badge ${f[7]==="On Time"?"on":f[7]==="Boarding"?"board":f[7]==="Delayed"?"delay":"depart"}">${f[7]}</span></td></tr>`).join("")||'<tr><td colspan="7" style="text-align:center;padding:30px;color:#91a7c0">Tidak ada penerbangan yang cocok.</td></tr>'}
+function mapXY(lat,lon){return {x:((lon+180)/360)*100,y:((90-lat)/180)*100}}
+
+const airlineImages={
+"Garuda Indonesia":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Garuda_Indonesia_logo.svg",
+"Singapore Airlines":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Singapore_Airlines_Logo.svg",
+"Malaysia Airlines":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Malaysia_Airlines_logo.svg",
+"Thai Airways":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Thai_Airways_logo.svg",
+"Emirates":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Emirates_logo.svg",
+"Qatar Airways":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qatar_Airways_logo.svg",
+"Etihad Airways":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Etihad_Airways_logo.svg",
+"Turkish Airlines":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Turkish_Airlines_logo_2019.svg",
+"Lufthansa":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Lufthansa_Logo_2018.svg",
+"British Airways":"https://commons.wikimedia.org/wiki/Special:Redirect/file/British_Airways_Logo.svg",
+"Air France":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Air_France_Logo.svg",
+"KLM":"https://commons.wikimedia.org/wiki/Special:Redirect/file/KLM_logo.svg",
+"Japan Airlines":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Japan_Airlines_logo.svg",
+"All Nippon Airways":"https://commons.wikimedia.org/wiki/Special:Redirect/file/All_Nippon_Airways_logo.svg",
+"Korean Air":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Korean_Air_logo.svg",
+"Cathay Pacific":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Cathay_Pacific_logo.svg",
+"Qantas":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qantas_logo.svg",
+"United Airlines":"https://commons.wikimedia.org/wiki/Special:Redirect/file/United_Airlines_Logo.svg",
+"Delta Air Lines":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Delta_Air_Lines_Logo.svg",
+"Air Canada":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Air_Canada_Logo.svg"
+};
+function showPlane(i){
+ const f=flights[i], al=f[1], code=airlineMap[al]?.[1]||"", icao=airlineMap[al]?.[2]||"";
+ document.getElementById("modalTitle").textContent="Aircraft / Flight Detail";
+ document.getElementById("modalFlight").textContent=f[0];
+ document.getElementById("modalAirline").textContent=al+" • "+code+"/"+icao;
+ document.getElementById("modalAircraft").textContent=f[4];
+ document.getElementById("modalRoute").textContent=f[2]+" → "+f[3];
+ document.getElementById("modalIcao").textContent=icao+" • "+f[0];
+ document.getElementById("modalStatus").textContent=f[7];
+ const img=document.getElementById("modalImg");
+ img.alt=al+" logo";
+ img.src=airlineImages[al]||"";
+ img.style.objectFit="contain";
+ img.style.padding="35px";
+ img.style.background="#fff";
+ img.onerror=()=>{
+   const safe=al.replace(/[&<>"']/g,"");
+   img.src="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
+     '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500"><rect width="100%" height="100%" fill="white"/><text x="50%" y="46%" text-anchor="middle" font-family="Arial" font-size="52" font-weight="700" fill="#12304a">'+safe+'</text><text x="50%" y="60%" text-anchor="middle" font-family="Arial" font-size="25" fill="#5d7187">'+code+' / '+icao+'</text></svg>'
+   );
+ };
+ document.getElementById("planeModal").classList.add("show");
+}
+function closePlane(){document.getElementById("planeModal").classList.remove("show")}
+
+function renderMap(){let m=document.getElementById("map");airports.forEach(a=>{let p=mapXY(a[5],a[6]);let e=document.createElement("div");e.className="airport";e.style.left=`calc(${p.x}% - 4px)`;e.style.top=`calc(${p.y}% - 4px)`;e.title=`${a[1]} — ${a[0]}`;e.onclick=()=>alert(`${a[0]} (${a[1]}/${a[2]})\n${a[3]}, ${a[4]}`);m.appendChild(e)});flights.slice(0,12).forEach((f,i)=>{let a=airportMap[f[2]],b=airportMap[f[3]]||airportMap["SIN"];if(!b)return;let t=(i%8)/8+.15;let lat=a[5]+(b[5]-a[5])*t,lon=a[6]+(b[6]-a[6])*t;let p=mapXY(lat,lon),e=document.createElement("div");e.className="plane";e.textContent="✈";e.style.left=`${p.x}%`;e.style.top=`${p.y}%`;e.title=`${f[0]} — ${f[1]} — ${f[4]}`;e.onclick=()=>showPlane(i);m.appendChild(e)})}
+function focusAirport(code){let a=airportMap[code];alert(`${a[0]}\n${a[1]} / ${a[2]}\n${a[3]}, ${a[4]}`)}
+function resetFilters(){q.value="";airline.value="";status.value="";renderFlights()}
+function downloadCSV(){let rows=["Flight,Airline,From,To,Aircraft,Gate,Time,Status",...flights.map(f=>f.join(","))];let b=new Blob([rows.join("\\n")],{type:"text/csv"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="skytrack-flights.csv";a.click();URL.revokeObjectURL(u)}
+renderAirlines();renderAirports();renderFlights();renderMap();
+</script>
+</body></html>
